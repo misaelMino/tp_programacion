@@ -28,6 +28,36 @@ const getAllProductosDescripcion = async (descripcion) => {
     where p.descripcion like ?;`, [`%${descripcion}%`]);
   return result;
 }
+//unir consultas, parametrizar 
+
+const prueba = async ({ idrubro = null, descripcion = null } = {}) => {
+  const connection = await database.getConnection();
+  let query = `
+    select p.codigo, p.descripcion, p.precio, p.urlimagen, r.descripcion as descripcionrubro
+    from productos as p 
+    left join rubros as r on p.idrubro=r.idrubro
+    where 1=1
+    `;
+  const params = [];
+
+  if (idrubro !== null) {
+      query += ` and p.idrubro = ?`;
+      params.push(idrubro);
+  } else if (descripcion !== null) {
+      query += ` and p.descripcion like ?`;
+      params.push(`%${descripcion}%`);
+  }
+
+  const [result] = await connection.query(query, params);
+  console.log(descripcion) + " esto es repo";
+  console.log("query: " + query);
+  return result;
+}
+
+
+
+
+
 
 
 
@@ -46,7 +76,8 @@ module.exports = {
     getAllProductos,
     getAllRubros,
     getAllProductosRubro,
-    getAllProductosDescripcion
+    getAllProductosDescripcion,
+    prueba
 
 };
 

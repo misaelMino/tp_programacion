@@ -21,4 +21,4 @@ app.use(morgan("dev"));
 app.use(express.json()); //para parsear los datos json
 
 
-app.use("/productos", productoRoutes);  // cargo las rutas de clientes bajo la ruta base "/clientes"
+app.use("/productos", productoRoutes);  

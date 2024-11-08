@@ -31,6 +31,24 @@ const getAllProductosDescripcion = async (req, res) => {
 };
 
 
+const prueba = async (req, res) => {
+    try {
+        // Obtén los parámetros de la solicitud
+        const { id } = req.params; // Para idrubro (si se usa en la ruta como parámetro)
+        const { descripcion } = req.query; // Para descripción (usando query params en GET)
+
+        // Llama a la función parametrizada con los filtros necesarios
+        const productosData = await productoRepository.prueba({
+            idrubro: id ? parseInt(id) : null, // Convierte idrubro a entero si está presente
+            descripcion: descripcion || null // Usa descripción si está presente
+        });
+
+        res.json(productosData); // Responde con los datos obtenidos
+        console.log(descripcion + " asdasdasdasd");
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener productos' }); // Manejo de errores
+    }
+};
 
 
 
@@ -64,6 +82,7 @@ module.exports = {
     getDescripciones,
     getAllRubros,
     getAllProductosRubro,
-    getAllProductosDescripcion
+    getAllProductosDescripcion,
+    prueba
 };
 

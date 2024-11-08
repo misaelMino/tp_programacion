@@ -1,6 +1,6 @@
 async function getAllProductos() {
     try {
-        const response = await fetch('http://localhost:4000/productos/all');
+        const response = await fetch('http://localhost:4000/productos');
         if (!response.ok) {
             alert('Error al obtener los productos');
             return;
@@ -16,7 +16,7 @@ async function getAllProductos() {
 
 async function getAllProductosRubros(idrubro) {
     try {
-        const response = await fetch(`http://localhost:4000/productos/rubros/${idrubro}`);
+        const response = await fetch(`http://localhost:4000/productos/${idrubro}`);
         if (!response.ok) {
             alert('Error al obtener los productos por rubro');
             return;
@@ -31,20 +31,11 @@ async function getAllProductosRubros(idrubro) {
 }
 
 async function getAllProductosDescripcion(busqDescripcion) {
-    const data = { descripcion: busqDescripcion }; 
-    console.log(data); 
-
     try {
-        const response = await fetch(`http://localhost:4000/productos/descripcion`, {
-            method: 'POST', 
-            headers: {
-                'Content-Type': 'application/json', 
-            },
-            body: JSON.stringify(data), 
-        });
-
+        const response = await fetch(`http://localhost:4000/productos?descripcion=${busqDescripcion}`);
         if (!response.ok) {
-            throw new Error('Error en la respuesta del servidor');
+            alert('No existen productos con esa descripción');
+            return;
         }
 
         const productos = await response.json(); 
@@ -57,7 +48,11 @@ async function getAllProductosDescripcion(busqDescripcion) {
     }
 }
 
-function cargarProductos(datos) {
+
+
+
+
+function cargarProductos2(datos) {
     const itemsInsertados = document.getElementById('itemsInsertados');
     itemsInsertados.innerHTML = ''; 
 
@@ -154,6 +149,89 @@ function listenerBusquedaDescripcion(){
     });
 
 }
+
+
+const toggleViewBtn = document.getElementById('toggleViewBtn');
+let isTableView = false; // Para controlar el estado de la vista
+
+toggleViewBtn.addEventListener('click', () => {
+    isTableView = !isTableView;
+    getAllProductos(); // Llama a la función para recargar la vista
+    toggleViewBtn.textContent = isTableView ? 'Cambiar a vista de cards' : 'Cambiar a vista de tabla';
+});
+
+function cargarProductos(datos) {
+    const itemsInsertados = document.getElementById('itemsInsertados');
+    itemsInsertados.innerHTML = '';
+
+    if (isTableView) {
+        // Vista de tabla
+        const table = document.createElement('table');
+        table.classList.add('table', 'table-striped');
+
+        // Encabezados de la tabla
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Descripción</th>
+                    <th>Precio</th>
+                    <th>Rubro</th>
+                    <th>Imagen</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        `;
+
+        const tbody = table.querySelector('tbody');
+        datos.forEach(data => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${data.codigo}</td>
+                <td>${data.descripcion}</td>
+                <td>$${data.precio}</td>
+                <td>${data.descripcionrubro}</td>
+                <td><img src="${data.urlimagen}" alt="${data.descripcion}" style="width: 50px; height: auto;"></td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        itemsInsertados.appendChild(table);
+    } else {
+        // Vista de tarjetas (la que ya tienes)
+        datos.forEach(data => {
+            const col = document.createElement('div');
+            col.classList.add('col-md-4', 'mb-4'); // 3 tarjetas por fila en pantallas medianas
+
+            col.innerHTML = `
+                <div class="card h-100">
+                    <img src="${data.urlimagen}" class="card-img-top" alt="${data.descripcion}">
+                    <div class="card-body">
+                        <h5 class="card-title">${data.descripcion}</h5>
+                        <p class="card-text">
+                            <strong>Código:</strong> ${data.codigo}<br>
+                            <strong>Precio:</strong> $${data.precio}<br>
+                            <strong>Rubro:</strong> ${data.descripcionrubro}
+                        </p>
+                    </div>
+                </div>
+            `;
+            itemsInsertados.appendChild(col);
+        });
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
 
 listenerBusquedaDescripcion();
 listenerSelectRubro();
