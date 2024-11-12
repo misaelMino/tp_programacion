@@ -1,37 +1,38 @@
 const database = require("../../config/database");
 
-const getAllProductos = async () => {
-    const connection = await database.getConnection();
-    const [result] = await connection.query(`
-      select p.codigo, p.descripcion, p.precio, p.urlimagen, r.descripcion as descripcionrubro
-      from productos as p 
-      left join rubros as r on p.idrubro=r.idrubro;`);
-    return result;
-}
+// const getAllProductos = async () => {
+//     const connection = await database.getConnection();
+//     const [result] = await connection.query(`
+//       select p.codigo, p.descripcion, p.precio, p.urlimagen, r.descripcion as descripcionrubro
+//       from productos as p 
+//       left join rubros as r on p.idrubro=r.idrubro;`);
+//     return result;
+// }
 
-const getAllProductosRubro = async (idrubro) => {
-  const connection = await database.getConnection();
-  const [result] = await connection.query(`
-    select p.codigo, p.descripcion, p.precio, p.urlimagen, r.descripcion as descripcionrubro
-    from productos as p 
-    left join rubros as r on p.idrubro=r.idrubro
-    where p.idrubro = ?;`, [idrubro]);
-  return result;
-}
+// const getAllProductosRubro = async (idrubro) => {
+//   const connection = await database.getConnection();
+//   const [result] = await connection.query(`
+//     select p.codigo, p.descripcion, p.precio, p.urlimagen, r.descripcion as descripcionrubro
+//     from productos as p 
+//     left join rubros as r on p.idrubro=r.idrubro
+//     where p.idrubro = ?;`, [idrubro]);
+//   return result;
+// }
 
-const getAllProductosDescripcion = async (descripcion) => {
-  const connection = await database.getConnection();
-  const [result] = await connection.query(`
-    select p.codigo, p.descripcion, p.precio, p.urlimagen, r.descripcion as descripcionrubro
-    from productos as p 
-    left join rubros as r on p.idrubro=r.idrubro
-    where p.descripcion like ?;`, [`%${descripcion}%`]);
-  return result;
-}
+// const getAllProductosDescripcion = async (descripcion) => {
+//   const connection = await database.getConnection();
+//   const [result] = await connection.query(`
+//     select p.codigo, p.descripcion, p.precio, p.urlimagen, r.descripcion as descripcionrubro
+//     from productos as p 
+//     left join rubros as r on p.idrubro=r.idrubro
+//     where p.descripcion like ?;`, [`%${descripcion}%`]);
+//   return result;
+// }
 //unir consultas, parametrizar 
 
-const prueba = async ({ idrubro = null, descripcion = null } = {}) => {
+const prueba = async (idrubro = null, descripcion = null) => {
   const connection = await database.getConnection();
+  console.log(idrubro + "  " + descripcion);
   let query = `
     select p.codigo, p.descripcion, p.precio, p.urlimagen, r.descripcion as descripcionrubro
     from productos as p 
@@ -40,10 +41,11 @@ const prueba = async ({ idrubro = null, descripcion = null } = {}) => {
     `;
   const params = [];
 
-  if (idrubro !== null) {
+  if (idrubro !== null && idrubro !== "") {
       query += ` and p.idrubro = ?`;
       params.push(idrubro);
-  } else if (descripcion !== null) {
+  }
+  if (descripcion !== null) {
       query += ` and p.descripcion like ?`;
       params.push(`%${descripcion}%`);
   }
@@ -53,11 +55,6 @@ const prueba = async ({ idrubro = null, descripcion = null } = {}) => {
   console.log("query: " + query);
   return result;
 }
-
-
-
-
-
 
 
 
@@ -73,11 +70,11 @@ const getAllRubros = async () => {
 
 
 module.exports = {
-    getAllProductos,
     getAllRubros,
-    getAllProductosRubro,
-    getAllProductosDescripcion,
     prueba
+    //getAllProductosRubro,
+    //getAllProductosDescripcion,
+    //getAllProductos,
 
 };
 

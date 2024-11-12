@@ -7,12 +7,7 @@ const productoController = require('../controllers/productoController');
 //router.post('/descripcion', productoController.getAllProductosDescripcion); //hacer uno solo parametrizado
 router.get('/rubros', productoController.getAllRubros);  
 router.get('/', productoController.prueba);
-router.get('/:id', productoController.prueba);
+//router.get('/:id', productoController.prueba);
 
-
-
- 
-//router.get('/get/filters', productoController.getClienteParametrizado);
-//getAllProductosDescripcion
 
 module.exports = router;

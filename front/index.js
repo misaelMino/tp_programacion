@@ -1,56 +1,73 @@
-async function getAllProductos() {
-    try {
-        const response = await fetch('http://localhost:4000/productos');
-        if (!response.ok) {
-            alert('Error al obtener los productos');
-            return;
-        }
-        const datos = await response.json();
-        console.log(datos);
-        cargarProductos(datos);
-    } catch (error) {
-        console.error('Error al obtener los productos:', error);
-        alert('Error al obtener los productos');
-    }
-}
+// async function getAllProductos() {
+//     try {
+//         const response = await fetch('http://localhost:4000/productos');
+//         if (!response.ok) {
+//             alert('Error al obtener los productos');
+//             return;
+//         }
+//         const datos = await response.json();
+//         console.log(datos);
+//         cargarProductos(datos);
+//     } catch (error) {
+//         console.error('Error al obtener los productos:', error);
+//         alert('Error al obtener los productos');
+//     }
+// }
 
-async function getAllProductosRubros(idrubro) {
+// async function getAllProductosRubros(idrubro) {
+//     try {
+//         const response = await fetch(`http://localhost:4000/productos/${idrubro}`);
+//         if (!response.ok) {
+//             alert('Error al obtener los productos por rubro');
+//             return;
+//         }
+//         const datos = await response.json();
+//         console.log(datos);
+//         cargarProductos(datos);
+//     } catch (error) {
+//         console.error('Error al obtener los productos por rubro:', error);
+//         alert('Error al obtener los productos por rubro');
+//     }
+// }
+// async function getAllProductosDescripcion(busqDescripcion) {
+//     try {
+//         const response = await fetch(`http://localhost:4000/productos?descripcion=${busqDescripcion}`);
+//         if (!response.ok) {
+//             alert('No existen productos con esa descripción');
+//             return;
+//         }
+
+//         const productos = await response.json(); 
+//         console.log(productos); 
+
+//         cargarProductos(productos);
+//     } catch (error) {
+//         console.error('Error al obtener los productos por descripción:', error);
+//         alert('Error al obtener los productos por descripción');
+//     }
+// }
+
+async function getBusquedaRubroDescripcion(idrubro, descripcion) {
     try {
-        const response = await fetch(`http://localhost:4000/productos/${idrubro}`);
+        let url = "";
+        if (idrubro !== null && idrubro !== undefined) {
+            url += `?idrubro=${idrubro}`;
+        }
+        if (descripcion) {
+            url += (url ? '&' : '?') + `descripcion=${descripcion}`;
+        }
+        const response = await fetch(`http://localhost:4000/productos/${url}`);
         if (!response.ok) {
             alert('Error al obtener los productos por rubro');
             return;
         }
         const datos = await response.json();
-        console.log(datos);
-        cargarProductos(datos);
+        cargarProductos(datos);        
     } catch (error) {
-        console.error('Error al obtener los productos por rubro:', error);
-        alert('Error al obtener los productos por rubro');
+        console.error('Error al obtener los productos:', error);
+        alert('Error al obtener los productos');
     }
 }
-
-async function getAllProductosDescripcion(busqDescripcion) {
-    try {
-        const response = await fetch(`http://localhost:4000/productos?descripcion=${busqDescripcion}`);
-        if (!response.ok) {
-            alert('No existen productos con esa descripción');
-            return;
-        }
-
-        const productos = await response.json(); 
-        console.log(productos); 
-
-        cargarProductos(productos);
-    } catch (error) {
-        console.error('Error al obtener los productos por descripción:', error);
-        alert('Error al obtener los productos por descripción');
-    }
-}
-
-
-
-
 
 function cargarProductos2(datos) {
     const itemsInsertados = document.getElementById('itemsInsertados');
@@ -120,15 +137,20 @@ function cargarCombo(data) {
     });
 }
 
+let rubroPrueba = null;
 function listenerSelectRubro(){
     const rubroSelect = document.getElementById('rubros');
     rubroSelect.addEventListener('change', (event) => {
         const idrubro = event.target.value;
+        rubroPrueba = event.target.value
         if (idrubro === 'todos'){
-            getAllProductos()
+            getBusquedaRubroDescripcion(null, null);
+            rubroPrueba = '';
+            limpiarDescripcion();
         }
         else{
-            getAllProductosRubros(idrubro);
+            getBusquedaRubroDescripcion(idrubro, null);
+            limpiarDescripcion();
         }
     });
 }
@@ -138,25 +160,24 @@ function listenerBusquedaDescripcion(){
     const btnLimpiar = document.getElementById('limpiarBtn');
     const descripcion = document.getElementById('descripcionInput');
     botonBuscar.addEventListener('click', () => {
-        getAllProductosDescripcion(descripcion.value);
+        getBusquedaRubroDescripcion(rubroPrueba, descripcion.value);
     });
     
     btnLimpiar.addEventListener('click', () => {
-        getAllProductos();
+        getBusquedaRubroDescripcion(null, null);
         getAllRubros();
-        descripcion.value = '';
-        descripcion.placeholder = 'Ingresar descripción acá';
+        limpiarDescripcion();
+        rubroPrueba = '';
     });
 
 }
 
-
 const toggleViewBtn = document.getElementById('toggleViewBtn');
-let isTableView = false; // Para controlar el estado de la vista
+let isTableView = false; 
 
 toggleViewBtn.addEventListener('click', () => {
     isTableView = !isTableView;
-    getAllProductos(); // Llama a la función para recargar la vista
+    getBusquedaRubroDescripcion(null, null);
     toggleViewBtn.textContent = isTableView ? 'Cambiar a vista de cards' : 'Cambiar a vista de tabla';
 });
 
@@ -165,11 +186,10 @@ function cargarProductos(datos) {
     itemsInsertados.innerHTML = '';
 
     if (isTableView) {
-        // Vista de tabla
+        // vistatabla
         const table = document.createElement('table');
         table.classList.add('table', 'table-striped');
 
-        // Encabezados de la tabla
         table.innerHTML = `
             <thead>
                 <tr>
@@ -199,10 +219,10 @@ function cargarProductos(datos) {
 
         itemsInsertados.appendChild(table);
     } else {
-        // Vista de tarjetas (la que ya tienes)
+        // vista tarjeta
         datos.forEach(data => {
             const col = document.createElement('div');
-            col.classList.add('col-md-4', 'mb-4'); // 3 tarjetas por fila en pantallas medianas
+            col.classList.add('col-md-4', 'mb-4');
 
             col.innerHTML = `
                 <div class="card h-100">
@@ -222,18 +242,14 @@ function cargarProductos(datos) {
     }
 }
 
-
-
-
-
-
-
-
-
-
+function limpiarDescripcion(){
+    const descripcion = document.getElementById('descripcionInput');
+    descripcion.value = '';
+    descripcion.placeholder = 'Ingresar descripción acá';
+}
 
 
 listenerBusquedaDescripcion();
 listenerSelectRubro();
-getAllProductos();
+getBusquedaRubroDescripcion(null, null);
 getAllRubros();
